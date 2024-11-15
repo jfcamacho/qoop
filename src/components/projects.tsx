@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { classNames } from 'primereact/utils';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
@@ -11,10 +11,20 @@ import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
 import { TriStateCheckbox, TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 import { CustomerService } from './service/CustomerService';
+import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import FooterDialog from './footerDialog';
 
 interface Representative {
   name: string;
   image: string;
+}
+
+interface Project {
+    title: string;
+    description: string;
 }
 
 interface Country {
@@ -35,7 +45,46 @@ interface Customer {
   balance: number;
 }
 
-export default function User() {
+export default function Projects() {
+    const toast = useRef<Toast>(null);
+    
+    const [formData, setFormData] = useState<Project>({
+        title: "",
+        description: "",
+      });
+    
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData({
+        ...formData,
+        [name]: value,
+    });
+    };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault(); // Evita la recarga de la página
+        // Aquí puedes hacer un fetch o axios para enviar los datos al backend
+      };
+
+    const confirm2 = () => {
+        confirmDialog({
+            message: 'Yoour project will be added...!',
+            header: 'Info',
+            icon: 'pi pi-info-circle',
+            defaultFocus: 'reject',
+            acceptClassName: 'p-button-danger',
+            acceptLabel: 'Ok'
+        });
+    };
+    const headerC = (
+        <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />
+    );
+    const footerC = (
+        <>
+            <Button label="Save" icon="pi pi-check" />
+            <Button label="Cancel" severity="secondary" icon="pi pi-times" style={{ marginLeft: '0.5em' }} />
+        </>
+    );
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -110,7 +159,7 @@ export default function User() {
     const renderHeader = () => {
         return (
             <div className="flex flex-wrap align-items-center justify-content-between gap-2">
-                <span className="text-xl text-900 font-bold">Users</span>
+                <span className="text-xl text-900 font-bold">Projects</span>
                 <IconField iconPosition="left">
                     <InputIcon className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
@@ -190,15 +239,48 @@ export default function User() {
 
     return (
         <div className="card">
-            <DataTable value={customers} paginator rows={10} dataKey="id" filters={filters} filterDisplay="row" loading={loading}
-                    globalFilterFields={['name', 'country.name', 'representative.name', 'status']} header={header} emptyMessage="No customers found.">
-                <Column field="name" header="Name" filter filterPlaceholder="Search by name" style={{ minWidth: '12rem' }} />
-                <Column header="Country" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filter filterPlaceholder="Search by country" />
-                <Column header="Agent" filterField="representative" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem' }}
-                    body={representativeBodyTemplate} filter filterElement={representativeRowFilterTemplate} />
-                <Column field="status" header="Status" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filter filterElement={statusRowFilterTemplate} />
-                <Column field="verified" header="Verified" dataType="boolean" style={{ minWidth: '6rem' }} body={verifiedBodyTemplate} filter filterElement={verifiedRowFilterTemplate} />
-            </DataTable>
+            <div className='grid'>
+                <div className='col-3'>
+                    <div className='card'>
+                        <div className="card flex justify-content-center">
+                            <Card title="Insert a new Project" subTitle="Create a new project and detail it" footer={FooterDialog} header={headerC} className="md:w-25rem">
+                                <p className="m-0">
+                                    This is the space where you can detail each new project and associate the corresponding users
+                                </p>
+                                    <Toast ref={toast} />
+                                    <ConfirmDialog />
+                                    <form onSubmit={handleSubmit}>
+                                    <div className="card flex flex-column">
+                                        <div className="p-inputgroup flex-1 m-2">
+                                            <span className="p-inputgroup-addon">
+                                                <i className="pi pi-user"></i>
+                                            </span>
+                                            <InputText placeholder="Username" name='username' value={formData.title} onChange={handleChange}/>
+                                        </div>
+                                        <div className="p-inputgroup flex-1 m-2">
+                                            <span className="p-inputgroup-addon">
+                                                <i className="pi pi-key"></i>
+                                            </span>
+                                            <InputText placeholder="Username" name='username' value={formData.description} onChange={handleChange}/>
+                                        </div>
+                                    </div>
+                                    </form>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+                <div className='col-9'>
+                    <DataTable value={customers} paginator rows={10} dataKey="id" filters={filters} filterDisplay="row" loading={loading}
+                            globalFilterFields={['name', 'country.name', 'representative.name', 'status']} header={header} emptyMessage="No customers found.">
+                        <Column field="name" header="Name" filter filterPlaceholder="Search by name" style={{ minWidth: '12rem' }} />
+                        <Column header="Country" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filter filterPlaceholder="Search by country" />
+                        <Column header="Agent" filterField="representative" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem' }}
+                            body={representativeBodyTemplate} filter filterElement={representativeRowFilterTemplate} />
+                        <Column field="status" header="Status" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filter filterElement={statusRowFilterTemplate} />
+                        <Column field="verified" header="Verified" dataType="boolean" style={{ minWidth: '6rem' }} body={verifiedBodyTemplate} filter filterElement={verifiedRowFilterTemplate} />
+                    </DataTable>
+                </div>
+            </div>
         </div>
     );
 }

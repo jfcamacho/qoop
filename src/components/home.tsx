@@ -2,20 +2,33 @@ import { Toolbar } from 'primereact/toolbar';
 import React from 'react';
 import { Badge } from 'primereact/badge';
 import { MegaMenu } from 'primereact/megamenu';
+import { Link, Outlet, Router, useNavigate } from 'react-router-dom';
+import { MenuItem } from 'primereact/menuitem';
 
 const Home = () => { 
+    const navigate = useNavigate();
     const items: MenuItem[] = [
         {
             label: 'Users',
-            icon: 'pi pi-users'
+            icon: 'pi pi-users',
+            command: () => {
+                navigate('./users')
+            }
         },
         {
             label: 'Projects',
-            icon: 'pi pi-building'
+            icon: 'pi pi-building',
+            className: "active",
+            command: () => {
+                navigate('./projects')
+            }
         },
         {
             label: 'Tasks',
-            icon: 'pi pi-clock'
+            icon: 'pi pi-clock',
+            command: () => {
+                navigate('./tasks')
+            }
         }
     ];
     const startContent = (
@@ -64,6 +77,7 @@ const Home = () => {
                 </div>
                 <div className='col-10'>
                     <div className="layout-main-container">
+                        <Outlet/>
                     </div>
                 </div>
             </div>
