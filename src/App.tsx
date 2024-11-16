@@ -1,10 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css'
-import Home from './components/home'
-import Login from "./components/login"
-import User from './components/users';
-import Projects from './components/projects';
-import Tasks from './components/tasks';
+import Home from './pages/home'
+import Login from "./pages/login"
+import User from './pages/users';
+import Projects from './pages/projects';
+import Tasks from './pages/tasks';
 
 function App() {
   return (

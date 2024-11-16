@@ -5,7 +5,7 @@ const FooterDialog = () => {
         <>
         <div className='flex justify-content-end'>
             <Button label="Continue" icon="pi pi-check" type='submit'/>
-            <Button label="Cancel" severity="secondary" icon="pi pi-user" style={{ marginLeft: '0.5em' }} />
+            <Button label="Cancel" severity="danger" icon="pi pi-times" style={{ marginLeft: '0.5em' }} />
         </div>
         </>
     )

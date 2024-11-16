@@ -10,7 +10,7 @@ import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
 import { TriStateCheckbox, TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
-import { CustomerService } from './service/CustomerService';
+import { CustomerService } from '../service/CustomerService';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 

@@ -2,7 +2,7 @@ import { Toolbar } from 'primereact/toolbar';
 import React from 'react';
 import { Badge } from 'primereact/badge';
 import { MegaMenu } from 'primereact/megamenu';
-import { Link, Outlet, Router, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { MenuItem } from 'primereact/menuitem';
 
 const Home = () => { 
@@ -55,13 +55,18 @@ const Home = () => {
             </svg>
         </React.Fragment>
     );
+
+    const handlerLogOut = () => {
+        navigate('/')
+    }
+
     const endContent = (
         <React.Fragment>
             <div className="flex align-items-center gap-2">
                 {/* <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" /> */}
                 <span className="text-black" style={{fontSize: '1.3rem'}}>Jefferson Camacho</span>
-                {1 > 2 ? <Badge value="Registered" severity="success"></Badge> : <Badge value="Unregister" severity="danger"></Badge>}
-            <button className="p-link inline-flex justify-content-center align-items-center text-black h-3rem w-3rem border-circle hover:bg-white-alpha-10 transition-all transition-duration-200">
+                {10 > 2 ? <Badge value="Active" severity="success"></Badge> : <Badge value="Expired" severity="danger"></Badge>}
+            <button onClick={handlerLogOut} className="p-link inline-flex justify-content-center align-items-center text-black h-3rem w-3rem border-circle hover:bg-white-alpha-10 transition-all transition-duration-200">
                 <i className="pi pi-power-off" style={{ fontSize: '1.2rem' }}></i>
             </button>
             </div>
