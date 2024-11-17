@@ -1,93 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { classNames } from 'primereact/utils';
+import React, { useState, useEffect, useRef } from 'react';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
-import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
-import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
-import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { Tag } from 'primereact/tag';
-import { TriStateCheckbox, TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
-import { CustomerService } from '../service/CustomerService';
+import { UserServices } from '../service/userService';
+import { Card } from 'primereact/card';
+import { MeterGroup } from 'primereact/metergroup';
+import { Toast } from 'primereact/toast';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import FooterDialog from '../components/footerDialog';
+import { User } from '../models/User.model';
+import { Button } from 'primereact/button';
 
-interface Representative {
-  name: string;
-  image: string;
-}
 
-interface Country {
-    name: string;
-    code: string;
-}
-
-interface Customer {
-  id: number;
-  name: string;
-  country: Country;
-  company: string;
-  date: string;
-  status: string;
-  verified: boolean;
-  activity: number;
-  representative: Representative;
-  balance: number;
-}
-
-export default function User() {
-    const [customers, setCustomers] = useState<Customer[]>([]);
-    const [filters, setFilters] = useState<DataTableFilterMeta>({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        representative: { value: null, matchMode: FilterMatchMode.IN },
-        status: { value: null, matchMode: FilterMatchMode.EQUALS },
-        verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+export default function Users() {
+    const toast = useRef<Toast>(null);
+    
+    const [formData, setFormData] = useState<User>({
+        username: "",
+        name: "",
+        email: "",
+        password: ""
+      });
+    
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData({
+        ...formData,
+        [name]: value,
     });
-    const [loading, setLoading] = useState<boolean>(true);
-    const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
-    const [representatives] = useState<Representative[]>([
-        { name: 'Amy Elsner', image: 'amyelsner.png' },
-        { name: 'Anna Fali', image: 'annafali.png' },
-        { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-        { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-        { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-        { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-        { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-        { name: 'Onyama Limba', image: 'onyamalimba.png' },
-        { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-        { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-    ]);
-    const [statuses] = useState<string[]>(['unqualified', 'qualified', 'new', 'negotiation', 'renewal']);
-
-    const getSeverity = (status: string) => {
-        switch (status) {
-            case 'unqualified':
-                return 'danger';
-
-            case 'qualified':
-                return 'success';
-
-            case 'new':
-                return 'info';
-
-            case 'negotiation':
-                return 'warning';
-
-            case 'renewal':
-                return null;
-        }
     };
 
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault(); // Evita la recarga de la página
+        // Aquí puedes hacer un fetch o axios para enviar los datos al backend
+      };
+
+    const confirm2 = () => {
+        confirmDialog({
+            message: 'Yoour User will be added...!',
+            header: 'Info',
+            icon: 'pi pi-info-circle',
+            defaultFocus: 'reject',
+            acceptClassName: 'p-button-danger',
+            acceptLabel: 'Ok'
+        });
+    };
+    const headerC = (
+        <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />
+    );
+
+    const [users, setUser] = useState<User[]>([]);
+    const [filters, setFilters] = useState<DataTableFilterMeta>({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        username: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        email: { value: null, matchMode: FilterMatchMode.CONTAINS }
+    });
+
+    const [loading, setLoading] = useState<boolean>(true);
+    const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
+    
+
     useEffect(() => {
-        CustomerService.getCustomersMedium().then((data: Customer[]) => {
-            setCustomers(getCustomers(data));
+        UserServices.getCustomersMedium().then((data: User[]) => {
+            setUser(getCustomers(data));
             setLoading(false);
         });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const getCustomers = (data: Customer[]) => {
+    const getCustomers = (data: User[]) => {
         return [...(data || [])].map((d) => {
             // @ts-ignore
             d.date = new Date(d.date);
@@ -119,86 +103,64 @@ export default function User() {
         );
     };
 
-    const countryBodyTemplate = (rowData: Customer) => {
-        return (
-            <div className="flex align-items-center gap-2">
-                <img alt="flag" src="https://primefaces.org/cdn/primereact/images/flag/flag_placeholder.png" className={`flag flag-${rowData.country.code}`} style={{ width: '24px' }} />
-                <span>{rowData.country.name}</span>
-            </div>
-        );
-    };
-
-    const representativeBodyTemplate = (rowData: Customer) => {
-        const representative = rowData.representative;
-
-        return (
-            <div className="flex align-items-center gap-2">
-                <img alt={representative.name} src={`https://primefaces.org/cdn/primereact/images/avatar/${representative.image}`} width="32" />
-                <span>{representative.name}</span>
-            </div>
-        );
-    };
-
-    const representativesItemTemplate = (option: Representative) => {
-        return (
-            <div className="flex align-items-center gap-2">
-                <img alt={option.name} src={`https://primefaces.org/cdn/primereact/images/avatar/${option.image}`} width="32" />
-                <span>{option.name}</span>
-            </div>
-        );
-    };
-
-    const statusBodyTemplate = (rowData: Customer) => {
-        return <Tag value={rowData.status} severity={getSeverity(rowData.status)} />;
-    };
-
-    const statusItemTemplate = (option: string) => {
-        return <Tag value={option} severity={getSeverity(option)} />;
-    };
-
-    const verifiedBodyTemplate = (rowData: Customer) => {
-        return <i className={classNames('pi', { 'true-icon pi-check-circle': rowData.verified, 'false-icon pi-times-circle': !rowData.verified })}></i>;
-    };
-
-    const representativeRowFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return (
-            <MultiSelect
-                value={options.value}
-                options={representatives}
-                itemTemplate={representativesItemTemplate}
-                onChange={(e: MultiSelectChangeEvent) => options.filterApplyCallback(e.value)}
-                optionLabel="name"
-                placeholder="Any"
-                className="p-column-filter"
-                maxSelectedLabels={1}
-                style={{ minWidth: '14rem' }}
-            />
-        );
-    };
-
-    const statusRowFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return (
-            <Dropdown value={options.value} options={statuses} onChange={(e: DropdownChangeEvent) => options.filterApplyCallback(e.value)} itemTemplate={statusItemTemplate} placeholder="Select One" className="p-column-filter" showClear style={{ minWidth: '12rem' }} />
-        );
-    };
-
-    const verifiedRowFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <TriStateCheckbox value={options.value} onChange={(e: TriStateCheckboxChangeEvent) => options.filterApplyCallback(e.value)} />;
-    };
-
     const header = renderHeader();
+
+    const actionsHandler = (rowData: User) => {
+        return (
+            <>
+                <Button icon="pi pi-pencil" text severity="success" onClick={() => setFormData(rowData)} autoFocus />
+                <Button icon="pi pi-trash" text severity="danger" autoFocus />
+            </>
+        )
+    }
 
     return (
         <div className="card">
-            <DataTable value={customers} paginator rows={10} dataKey="id" filters={filters} filterDisplay="row" loading={loading}
-                    globalFilterFields={['name', 'country.name', 'representative.name', 'status']} header={header} emptyMessage="No customers found.">
-                <Column field="name" header="Name" filter filterPlaceholder="Search by name" style={{ minWidth: '12rem' }} />
-                <Column header="Country" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filter filterPlaceholder="Search by country" />
-                <Column header="Agent" filterField="representative" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem' }}
-                    body={representativeBodyTemplate} filter filterElement={representativeRowFilterTemplate} />
-                <Column field="status" header="Status" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filter filterElement={statusRowFilterTemplate} />
-                <Column field="verified" header="Verified" dataType="boolean" style={{ minWidth: '6rem' }} body={verifiedBodyTemplate} filter filterElement={verifiedRowFilterTemplate} />
-            </DataTable>
+            <Toast ref={toast} />
+            <div className='grid'>
+                <div className='col-3'>
+                    <div className='card'>
+                        <div className="card flex justify-content-center">
+                            <Card title="Manage Users" subTitle="Create, Read, Update and Delete users" footer={FooterDialog} header={headerC} className="md:w-25rem">
+                                <p className="m-0">
+                                    This is the space where you can manage your users
+                                </p>
+                                    <Toast ref={toast} />
+                                    <ConfirmDialog />
+                                    <form onSubmit={handleSubmit}>
+                                    <div className="flex flex-column gap-3 mt-3">
+                                        <div className="p-inputgroup flex-1">
+                                            <InputText placeholder="Title" name='Name' value={formData.name} onChange={handleChange}/>
+                                        </div>
+                                        <div className="p-inputgroup flex-1">
+                                            <InputText placeholder="Username" name='Username' value={formData.username} onChange={handleChange}/>
+                                        </div>
+                                        <div className="p-inputgroup flex-1">
+                                            <InputText placeholder="Email" name='Email' type='email' value={formData.email} onChange={handleChange}/>
+                                        </div>
+                                        <div className="p-inputgroup flex-1">
+                                            <InputText placeholder="Password" name='password' type='password' value={formData.password} onChange={handleChange}/>
+                                        </div>
+                                    </div>
+                                    </form>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+                <div className='col-9 text-center'>
+                    <DataTable value={users} paginator rows={10} dataKey="id" loading={loading} filters={filters}
+                            globalFilterFields={['name', 'username', 'email']} header={header} emptyMessage="No customers found.">
+                        <Column field="name" header="Name" style={{ minWidth: '12rem' }} />
+                        <Column field="username" header="Username" style={{ minWidth: '12rem'}}  />
+                        <Column field="email" header="Email" style={{ minWidth: '12rem'}}  />
+                        <Column header="Actions" alignHeader={'center'} style={{ minWidth: '12rem', textAlign: 'center'}}  body={actionsHandler}/>
+                        
+                        {/* <Column header="Users" filterField="users" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '14rem' }}
+                            body={representativeBodyTemplate} filter filterElement={representativeRowFilterTemplate} />
+                        <Column field="status" header="Status" showFilterMenu={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filter filterElement={statusRowFilterTemplate} /> */}
+                    </DataTable>
+                </div>
+            </div>
         </div>
     );
 }

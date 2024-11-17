@@ -5,6 +5,7 @@ import Login from "./pages/login"
 import User from './pages/users';
 import Projects from './pages/projects';
 import Tasks from './pages/tasks';
+import SuscriptionPage from './pages/suscription';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="users" element={<User />} />
         <Route path="projects" element={<Projects />} />
         <Route path="tasks" element={<Tasks />} />
+        <Route path="suscriptions" element={<SuscriptionPage />} />
         {/* <Route path="settings" element={<Settings />} /> */}
       </Route>
     </Routes>

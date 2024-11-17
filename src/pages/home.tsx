@@ -18,16 +18,22 @@ const Home = () => {
         {
             label: 'Projects',
             icon: 'pi pi-building',
-            className: "active",
             command: () => {
                 navigate('./projects')
             }
         },
         {
             label: 'Tasks',
-            icon: 'pi pi-clock',
+            icon: 'pi pi-file',
             command: () => {
                 navigate('./tasks')
+            }
+        },
+        {
+            label: 'Suscriptions',
+            icon: 'pi pi-share-alt',
+            command: () => {
+                navigate('./suscriptions')
             }
         }
     ];

@@ -104,8 +104,8 @@ export default function Projects() {
 
     const tasksBodyTemplate = (rowData: Project) => {
         return (
-            <div className="flex align-items-center justify-content-start" style={{height: '20px'}}>
-                <span className="text-black mr-5 ml-3">{rowData.tasks}</span>
+            <div className="flex align-items-center justify-content-center" style={{height: '20px'}}>
+                <span className="text-black mr-5">{rowData.tasks}</span>
                 <a style={{cursor: "pointer"}} onClick={() => newTaskHandler(rowData)}>
                     <i className="pi pi-file-plus" style={{color: "#708090"}}></i>
                 </a>
@@ -154,12 +154,12 @@ export default function Projects() {
                     </div>
                 </div>
                 <div className='col-9 text-center'>
-                    <DataTable value={project} paginator rows={10} dataKey="id" filters={filters} filterDisplay="row" loading={loading}
+                    <DataTable value={project} paginator rows={10} dataKey="id" filters={filters} loading={loading}
                             globalFilterFields={['title', 'description', 'tasks', 'status']} header={header} emptyMessage="No customers found.">
-                        <Column field="title" header="Title" filter filterPlaceholder="Search by title" style={{ minWidth: '12rem' }} />
-                        <Column field="description" header="Description" filter filterPlaceholder="Search by description" style={{ minWidth: '12rem'}}  />
-                        <Column header="Tasks" filter filterPlaceholder="Search by task" style={{ minWidth: '12rem'}}  body={tasksBodyTemplate}/>
-                        <Column header="Status" filter filterPlaceholder="Search by status" 
+                        <Column field="title" header="Title" style={{ minWidth: '12rem' }} />
+                        <Column field="description" header="Description" style={{ minWidth: '12rem'}}  />
+                        <Column header="Tasks" alignHeader={'center'} style={{ minWidth: '12rem'}}  body={tasksBodyTemplate}/>
+                        <Column header="Status" 
                         body={statusBodyTemplate}
                         style={{ minWidth: '12rem' }}  
                         />
