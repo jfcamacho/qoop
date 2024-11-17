@@ -4,9 +4,11 @@ import { Badge } from 'primereact/badge';
 import { MegaMenu } from 'primereact/megamenu';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { MenuItem } from 'primereact/menuitem';
+import { useGlobalContext } from '../config/GlobalContext';
 
 const Home = () => { 
     const navigate = useNavigate();
+    const { user, setGlobalState } = useGlobalContext();
     const items: MenuItem[] = [
         {
             label: 'Users',
@@ -51,8 +53,8 @@ const Home = () => {
         <React.Fragment>
             <div className="flex align-items-center gap-2">
                 {/* <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" /> */}
-                <span className="text-white" style={{fontSize: '1.3rem'}}>Jefferson Camacho</span>
-                {10 > 2 ? <Badge value="Active" severity="success"></Badge> : <Badge value="Expired" severity="danger"></Badge>}
+                <span className="text-white" style={{fontSize: '1.3rem'}}>{user.name}</span>
+                {user.subscribed ? <Badge value="Active" severity="success"></Badge> : <Badge value="Expired" severity="danger"></Badge>}
             <button onClick={handlerLogOut} className="p-link inline-flex justify-content-center align-items-center text-black h-3rem w-3rem border-circle hover:bg-white-alpha-10 transition-all transition-duration-200">
                 <i className="pi pi-power-off" style={{ fontSize: '1.2rem', color: 'white'}}></i>
             </button>

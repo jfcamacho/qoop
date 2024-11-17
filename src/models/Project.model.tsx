@@ -4,4 +4,5 @@ export interface Project{
     description: string;
     tasks?: number;
     status?: number;    
+    owner_id?: number;
 }

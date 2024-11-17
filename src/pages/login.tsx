@@ -6,6 +6,9 @@ import { Password } from 'primereact/password';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
+import { useGlobalContext } from '../config/GlobalContext';
+import axios from 'axios';
+import Config from '../config/config';
 
 interface FormData {
     username: string;
@@ -16,6 +19,7 @@ interface FormData {
 const Login = () => {
     const navigate = useNavigate();
     const toast = useRef<Toast>(null);
+    const { user, setGlobalState } = useGlobalContext();
     
     const [formData, setFormData] = useState<FormData>({
         username: "",
@@ -30,18 +34,46 @@ const Login = () => {
     });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        const params = new URLSearchParams();
+        params.append("username", formData.username);
+        params.append("password", formData.password);
+
         event.preventDefault(); // Evita la recarga de la página
-        if(formData.username === 'admin' && formData.password === 'administrador'){
-            navigate('/Home')
-        }else{
+            try {
+                axios.post(`${Config.API_URL}/token`, params.toString(), {
+                    withCredentials: true,  // Esto también asegura que las cookies se envíen
+                  })
+                  .then((response: any) => {
+                    setGlobalState("user", {...response.data.user})
+                    navigate('/Home')
+                  })
+                  .catch(error => console.error('Error:', error));
+                // const response = await fetch("http://localhost:8000/token", {
+                //   method: "POST",
+                //   headers: {
+                //     "Content-Type": "application/x-www-form-urlencoded",
+                //   },
+                //   body: params.toString(),
+                //   credentials: "include", // Importante para enviar cookies
+                // });
+                // console.log(response)
+                // if (response.ok) {
+                //     setGlobalState("user", {name: "Jefferson", username: "jfcamacho", subscribed: false})
+                //     navigate('/Home')
+                // } else {
+                //   console.log("Invalid credentials");
+                // }
+            } catch (error) {
+            console.error("Error logging in:", error);
+            console.log("Error during register");
+            }
             setFormData({
                 ...formData,
                 ['username']: '',
                 ['password']: ''
             })
             confirm2()
-        }
         // Aquí puedes hacer un fetch o axios para enviar los datos al backend
       };
 

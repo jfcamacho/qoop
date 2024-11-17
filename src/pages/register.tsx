@@ -27,27 +27,49 @@ const Register = () => {
     });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Evita la recarga de la página
         if(formData.password !== formData.repeatPassword){
             toast.current?.show({severity:'error', summary: 'Error', detail:'The password must be equals', life: 3000});
         }else{
-            toast.current?.show({severity:'success', summary: 'Success', detail:'Your user has been registered', life: 3000});
-            confirm2()
-            navigate('/')
+            try {
+                formData.subscribed = false
+                const response = await fetch("http://127.0.0.1:8000/users", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(formData),
+                  credentials: "include", // Importante para enviar cookies
+                });
+          
+                if (response.ok) {
+                    toast.current?.show({severity:'success', summary: 'Success', detail:'Your user has been registered', life: 3000});
+                    confirm2()
+                } else {
+                  console.log("Invalid credentials");
+                }
+              } catch (error) {
+                console.error("Error logging in:", error);
+                console.log("Error during register");
+              }
+            // navigate('/')
         }
         // Aquí puedes hacer un fetch o axios para enviar los datos al backend
       };
 
     const confirm2 = () => {
         confirmDialog({
-            message: 'Your user or password it\'s incorrect...!',
-            header: 'Error',
-            icon: 'pi pi-info-circle',
-            defaultFocus: 'reject',
-            acceptClassName: 'p-button-danger',
+            message: 'Your user has been registered...!',
+            header: 'Success',
+            icon: 'pi pi-user',
+            defaultFocus: 'accept',
+            acceptClassName: 'p-button-success',
             rejectClassName: 'hidden',
-            acceptLabel: 'Ok'
+            acceptLabel: 'Ok',
+            accept: () => {
+                navigate('/')
+            }
         });
     };
 
@@ -71,6 +93,12 @@ const Register = () => {
             <form onSubmit={handleSubmit}>
             <Card title="Project Management Platform" subTitle="Register as a new user...!" footer={footer} header={header} className="w-25rem text-center">
             <div className="card flex flex-column">
+                <div className="p-inputgroup flex-1 m-2">
+                    <span className="p-inputgroup-addon">
+                        <i className="pi pi-id-card"></i>
+                    </span>
+                    <InputText placeholder="Name" name='name' value={formData.name} onChange={handleChange}/>
+                </div>
                 <div className="p-inputgroup flex-1 m-2">
                     <span className="p-inputgroup-addon">
                         <i className="pi pi-user"></i>

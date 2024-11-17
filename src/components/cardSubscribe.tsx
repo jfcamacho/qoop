@@ -1,8 +1,12 @@
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { ListBox } from 'primereact/listbox';
+import axios from 'axios';
+import Config from '../config/config';
+import { useGlobalContext } from '../config/GlobalContext';
 
 const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> = ({aFocus, options, sOptions}) => {
+    const { user, setGlobalState } = useGlobalContext();
 
     const header = (
         <div className='flex justify-content-center w-full p-3'>
@@ -11,7 +15,7 @@ const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> 
     );
     const footer = (
         <div className='flex justify-content-end'>
-            <Button label="Subscribe" severity="success" autoFocus={aFocus} icon="pi pi-check" style={{ marginLeft: '0.5em' }} />
+            <Button label="Subscribe" severity="success" autoFocus={aFocus} onClick={() => subscribeHandler()} icon="pi pi-check" style={{ marginLeft: '0.5em' }} />
         </div>
     );
     const itemTemplate = (option: any) => {
@@ -22,6 +26,16 @@ const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> 
             </div>
         );
     };
+
+    const subscribeHandler = async () => {
+        await axios.put(`${Config.API_URL}/users/subscription/${user.id}`, {...user}, {
+            withCredentials: true,  // Esto también asegura que las cookies se envíen
+          })
+          .then((response: any) => {
+            setGlobalState("user", {...response.data})
+          })
+          .catch(error => console.error('Error:', error));
+    }
 
     return (
         <>

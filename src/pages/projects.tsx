@@ -10,17 +10,24 @@ import { Card } from 'primereact/card';
 import { MeterGroup } from 'primereact/metergroup';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import FooterDialog from '../components/footerDialog';
 import { Project } from '../models/Project.model';
 import CreateTaskDialog, { ChildFunctions } from '../components/createTaskDialog';
+import axios from 'axios';
+import Config from '../config/config';
+import { Button } from 'primereact/button';
+import { useGlobalContext } from '../config/GlobalContext';
 
 
 export default function Projects() {
     const toast = useRef<Toast>(null);
-    
-    const [formData, setFormData] = useState<Project>({
+    const { user, setGlobalState } = useGlobalContext();
+    const projectData = {
         title: "",
         description: ""
+    }
+    
+    const [formData, setFormData] = useState<Project>({
+        ...projectData
       });
     
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,9 +38,16 @@ export default function Projects() {
     });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Evita la recarga de la página
-        // Aquí puedes hacer un fetch o axios para enviar los datos al backend
+        await axios.post(`${Config.API_URL}/projects/${user.id}`, formData, {
+            withCredentials: true,  // Esto también asegura que las cookies se envíen
+        }).then( (response: any) => {
+            toast.current?.show({severity:'success', summary: 'Success', detail:'The project has been created', life: 3000});
+            loadProjects()
+        }).catch( (error) => {
+            console.error('Error al actualizar el usuario:', error);
+        })
       };
 
     const confirm2 = () => {
@@ -63,19 +77,25 @@ export default function Projects() {
     const [loading, setLoading] = useState<boolean>(true);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
     
+    const loadProjects = async () => {
+        axios.get(`${Config.API_URL}/projects`, {
+            withCredentials: true,  // Esto también asegura que las cookies se envíen
+          })
+          .then((response: any) => {
+            console.log(response.data)
+            setProject(getCustomers(response.data));
+            setLoading(false);
+          })
+          .catch(error => console.error('Error:', error));
+    }
 
     useEffect(() => {
-        CustomerService.getCustomersMedium().then((data: Project[]) => {
-            setProject(getCustomers(data));
-            setLoading(false);
-        });
+        loadProjects()
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getCustomers = (data: Project[]) => {
         return [...(data || [])].map((d) => {
             // @ts-ignore
-            d.date = new Date(d.date);
-
             return d;
         });
     };
@@ -127,6 +147,17 @@ export default function Projects() {
         childFunctions?.setVisible(true)
     }
 
+    const FooterDialog = () => {
+        return(
+            <>
+            <div className='flex justify-content-end'>
+                <Button label="Continue" icon="pi pi-check" type='submit'/>
+                <Button label="Cancel" severity="danger" icon="pi pi-times" type='button' onClick={() => setFormData({...projectData})} style={{ marginLeft: '0.5em' }} />
+            </div>
+            </>
+        )
+    }
+
     return (
         <div className="card">
             <Toast ref={toast} />
@@ -134,13 +165,13 @@ export default function Projects() {
                 <div className='col-3'>
                     <div className='card'>
                         <div className="card flex justify-content-center">
+                            <form onSubmit={handleSubmit}>
                             <Card title="Insert a new Project" subTitle="Create a new project and detail it" footer={FooterDialog} header={headerC} className="md:w-25rem">
                                 <p className="m-0">
                                     This is the space where you can detail each new project and associate the corresponding users
                                 </p>
                                     <Toast ref={toast} />
                                     <ConfirmDialog />
-                                    <form onSubmit={handleSubmit}>
                                     <div className="flex flex-column gap-3 mt-3">
                                         <div className="p-inputgroup flex-1">
                                             <InputText placeholder="Title" name='title' value={formData.title} onChange={handleChange}/>
@@ -149,8 +180,8 @@ export default function Projects() {
                                             <InputText placeholder="Description" name='description' value={formData.description} onChange={handleChange}/>
                                         </div>
                                     </div>
-                                    </form>
                             </Card>
+                            </form>
                         </div>
                     </div>
                 </div>

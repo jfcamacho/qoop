@@ -9,6 +9,8 @@ import { Task } from "../models/Task.model";
 import { User } from "../models/User.model";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import axios from "axios";
+import Config from "../config/config";
 // Define los tipos de las funciones
 export type ChildFunctions = {
     setVisible: (value: boolean) => void;
@@ -24,10 +26,38 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
 
     const toast = useRef<Toast>(null);
     const [visible, setVisible] = useState(false);
+    const [users, setUser] = useState<User[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [selectedUser, setSelectedUser] = useState<User>({
+        id: 0,
+        username: "",
+        name: ""
+    });
+
+    const loadUsers = async () => {
+        axios.get(`${Config.API_URL}/users/me`, {
+            withCredentials: true,  // Esto también asegura que las cookies se envíen
+          })
+          .then((response: any) => {
+            setUser(getCustomers(response.data));
+            setLoading(false);
+          })
+          .catch(error => console.error('Error:', error));
+    }
+
+    const getCustomers = (data: User[]) => {
+        return [...(data || [])].map((d) => {
+            // @ts-ignore
+            // d.date = new Date(d.date);
+
+            return d;
+        });
+    };
 
     const [newProjet, setNewProject] = useState<Project>({
         title: '',
-        description: ''
+        description: '',
+        id: 0
     })
 
     const [task, setTask] = useState<Task>({
@@ -37,11 +67,16 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
     })
 
     useEffect(() => {
+        loadUsers()
         registerFunctions({ setVisible, setNewProject });
       }, [registerFunctions]);
 
     const saveTaskHandler = () => {
+        if (selectedUser){
+            task.owner_id = selectedUser.id
+        }
         toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
+        console.log(task);
     }
 
     const footerContent = (
@@ -59,14 +94,13 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
         });
         };
         
-    const [selectedUser, setSelectedUser] = useState(null);
 
-    const users: User[] = [
-        { username: 'jfcamacho', email: 'jfcamacho@email.com' },
-        { username: 'acbenitez', email: 'acbenitez@email.com' },
-        { username: 'herrera', email: 'herrera@email.com' },
-        { username: 'hernesto', email: 'hernesto@email.com' },
-    ];
+    // const users: User[] = [
+    //     { username: 'jfcamacho', email: 'jfcamacho@email.com' },
+    //     { username: 'acbenitez', email: 'acbenitez@email.com' },
+    //     { username: 'herrera', email: 'herrera@email.com' },
+    //     { username: 'hernesto', email: 'hernesto@email.com' },
+    // ];
 
     const tasks: Task[] = [
         { title: 'Create Topbar', description: 'Create the diferents parts in the topbar', user: {username: 'jfcamacho'} },
@@ -97,10 +131,10 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
                     <InputText placeholder="Title" name='title' value={task.title} onChange={handleChange}/>
                 </div>
                 <div className="col-8">
-                    <InputText className="w-full" placeholder="Descripton" name='title' value={task.description} onChange={handleChange}/>
+                    <InputText className="w-full" placeholder="Descripton" name='description' value={task.description} onChange={handleChange}/>
                 </div>
                 <div className="col-12">
-                    <Dropdown value={selectedUser} onChange={(e) => setSelectedUser(e.value)} options={users} optionLabel="username" placeholder="Select a user" 
+                    <Dropdown value={selectedUser} onChange={(e) => setSelectedUser(e.value)} options={users} optionLabel="name" placeholder="Select a user" 
                     filter valueTemplate={selectedCountryTemplate} className="w-full" />
                 </div>
                 <div className="col-12">

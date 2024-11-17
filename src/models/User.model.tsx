@@ -5,4 +5,5 @@ export interface User{
     password?: string
     repeatPassword?: string
     email?: string;
+    subscribed?: boolean;
 }
