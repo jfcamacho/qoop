@@ -49,7 +49,9 @@ export default function Users() {
         });
     };
     const headerC = (
-        <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />
+        <div className='flex justify-content-center w-full p-3'>
+            <img alt="Card" src="/images/Contract.png" className='w-12rem'/>
+        </div>
     );
 
     const [users, setUser] = useState<User[]>([]);

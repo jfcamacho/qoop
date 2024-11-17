@@ -6,20 +6,17 @@ import { Password } from 'primereact/password';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
-
-interface FormData {
-    username: string;
-    password: string;
-  }
+import { User } from '../models/User.model';
 
 
-const Login = () => {
+const Register = () => {
     const navigate = useNavigate();
     const toast = useRef<Toast>(null);
     
-    const [formData, setFormData] = useState<FormData>({
+    const [formData, setFormData] = useState<User>({
         username: "",
         password: "",
+        email: "",
       });
     
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,15 +29,12 @@ const Login = () => {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Evita la recarga de la página
-        if(formData.username === 'admin' && formData.password === 'administrador'){
-            navigate('/Home')
+        if(formData.password !== formData.repeatPassword){
+            toast.current?.show({severity:'error', summary: 'Error', detail:'The password must be equals', life: 3000});
         }else{
-            setFormData({
-                ...formData,
-                ['username']: '',
-                ['password']: ''
-            })
+            toast.current?.show({severity:'success', summary: 'Success', detail:'Your user has been registered', life: 3000});
             confirm2()
+            navigate('/')
         }
         // Aquí puedes hacer un fetch o axios para enviar los datos al backend
       };
@@ -64,8 +58,8 @@ const Login = () => {
     const footer = (
         <>
         <div className='flex justify-content-end'>
-            <Button label="LogIn" icon="pi pi-check" type='submit'/>
-            <Button label="Register" severity="secondary" onClick={() => navigate('/register')} icon="pi pi-user" style={{ marginLeft: '0.5em' }} />
+            <Button label="Cancel" severity='danger' icon="pi pi-undo" onClick={() => navigate('/')}/>
+            <Button label="Register" severity="secondary" icon="pi pi-user" style={{ marginLeft: '0.5em' }} />
         </div>
         </>
     );
@@ -75,7 +69,7 @@ const Login = () => {
             <Toast ref={toast} />
             <ConfirmDialog />
             <form onSubmit={handleSubmit}>
-            <Card title="Project Management Platform" subTitle="Login if you are already registered." footer={footer} header={header} className="w-25rem text-center">
+            <Card title="Project Management Platform" subTitle="Register as a new user...!" footer={footer} header={header} className="w-25rem text-center">
             <div className="card flex flex-column">
                 <div className="p-inputgroup flex-1 m-2">
                     <span className="p-inputgroup-addon">
@@ -85,9 +79,21 @@ const Login = () => {
                 </div>
                 <div className="p-inputgroup flex-1 m-2">
                     <span className="p-inputgroup-addon">
+                        <i className="pi pi-envelope"></i>
+                    </span>
+                    <InputText placeholder="Email" name='email' value={formData.email} onChange={handleChange}/>
+                </div>
+                <div className="p-inputgroup flex-1 m-2">
+                    <span className="p-inputgroup-addon">
                         <i className="pi pi-key"></i>
                     </span>
-                    <Password placeholder='Password' name='password' value={formData.password} feedback={false} onChange={handleChange} />
+                    <Password placeholder='Password' name='password' value={formData.password} onChange={handleChange} />
+                </div>
+                <div className="p-inputgroup flex-1 m-2">
+                    <span className="p-inputgroup-addon">
+                        <i className="pi pi-key"></i>
+                    </span>
+                    <Password placeholder='Repeat Password' name='repeatPassword' value={formData.repeatPassword} onChange={handleChange} />
                 </div>
             </div>
             </Card>
@@ -97,4 +103,4 @@ const Login = () => {
 
 }
 
-export default Login
+export default Register

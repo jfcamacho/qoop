@@ -63,7 +63,7 @@ export default function Tasks() {
                 <span className="text-xl text-900 font-bold">Tasks</span>
                 <IconField iconPosition="left">
                     <InputIcon className="pi pi-search" />
-                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
+                    <InputText autoFocus value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
                 </IconField>
             </div>
         );
@@ -74,7 +74,7 @@ export default function Tasks() {
     const actionsHandler = (rowData: User) => {
         return (
             <>
-                <Button icon="pi pi-trash" text severity="danger" autoFocus />
+                <Button icon="pi pi-trash" text severity="danger" />
             </>
         )
     }

@@ -5,7 +5,8 @@ import Login from "./pages/login"
 import User from './pages/users';
 import Projects from './pages/projects';
 import Tasks from './pages/tasks';
-import SuscriptionPage from './pages/suscription';
+import SubscriptionPage from './pages/subscription';
+import Register from './pages/register';
 
 function App() {
   return (
@@ -13,13 +14,14 @@ function App() {
     <Routes>
       {/* Ruta principal */}
       <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       {/* Ruta para Dashboard con rutas hijas */}
       <Route path="/home/*" element={<Home />}>
         <Route path="users" element={<User />} />
         <Route path="projects" element={<Projects />} />
         <Route path="tasks" element={<Tasks />} />
-        <Route path="suscriptions" element={<SuscriptionPage />} />
+        <Route path="subscriptions" element={<SubscriptionPage />} />
         {/* <Route path="settings" element={<Settings />} /> */}
       </Route>
     </Routes>

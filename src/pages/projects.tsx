@@ -11,7 +11,6 @@ import { MeterGroup } from 'primereact/metergroup';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import FooterDialog from '../components/footerDialog';
-import { Button } from 'primereact/button';
 import { Project } from '../models/Project.model';
 import CreateTaskDialog, { ChildFunctions } from '../components/createTaskDialog';
 
@@ -48,7 +47,9 @@ export default function Projects() {
         });
     };
     const headerC = (
-        <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />
+        <div className='flex justify-content-center w-full p-3'>
+            <img alt="Card" src="/images/Project.png" className='w-18rem'/>
+        </div>
     );
 
     const [project, setProject] = useState<Project[]>([]);
@@ -96,7 +97,7 @@ export default function Projects() {
                 <span className="text-xl text-900 font-bold">Projects</span>
                 <IconField iconPosition="left">
                     <InputIcon className="pi pi-search" />
-                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
+                    <InputText autoFocus value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
                 </IconField>
             </div>
         );
