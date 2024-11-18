@@ -11,6 +11,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import axios from "axios";
 import Config from "../config/config";
+import Projects from "../pages/projects";
 // Define los tipos de las funciones
 export type ChildFunctions = {
     setVisible: (value: boolean) => void;
@@ -20,14 +21,16 @@ export type ChildFunctions = {
   // Define los tipos de las props del componente hijo
   interface ChildComponentProps {
     registerFunctions: (functions: ChildFunctions) => void;
+    updateProjects: () => void;
   }
 
-const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) => {
+const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, updateProjects }) => {
 
     const toast = useRef<Toast>(null);
     const [visible, setVisible] = useState(false);
     const [users, setUser] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [selectedUser, setSelectedUser] = useState<User>({
         id: 0,
         username: "",
@@ -47,9 +50,12 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
 
     const getCustomers = (data: User[]) => {
         return [...(data || [])].map((d) => {
-            // @ts-ignore
-            // d.date = new Date(d.date);
+            return d;
+        });
+    };
 
+    const getTasks = (data: Task[]) => {
+        return [...(data || [])].map((d) => {
             return d;
         });
     };
@@ -63,19 +69,30 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
     const [task, setTask] = useState<Task>({
         title: '',
         description: '',
-        owner_id: 0
+        user_id: 0,
+        completed: false
     })
 
     useEffect(() => {
         loadUsers()
+        loadTasks()
         registerFunctions({ setVisible, setNewProject });
       }, [registerFunctions]);
 
-    const saveTaskHandler = () => {
+    const saveTaskHandler = async () => {
         if (selectedUser){
-            task.owner_id = selectedUser.id
+            task.completed = false
+            task.user_id = selectedUser.id
+        await axios.post(`${Config.API_URL}/tasks/${newProjet.id}`, task, {
+            withCredentials: true,  // Esto también asegura que las cookies se envíen
+        }).then( (response: any) => {
+            toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
+            loadTasks()
+            updateProjects()
+        }).catch( (error) => {
+            console.error('Error al actualizar el usuario:', error);
+        })
         }
-        toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
         console.log(task);
     }
 
@@ -93,7 +110,18 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
             [name]: value,
         });
         };
-        
+    
+    const loadTasks = async () => {
+        axios.get(`${Config.API_URL}/tasks`, {
+            withCredentials: true,  // Esto también asegura que las cookies se envíen
+            })
+            .then((response: any) => {
+            console.log(response.data)
+            setTasks(getTasks(response.data));
+            setLoading(false);
+            })
+            .catch(error => console.error('Error:', error));
+    }
 
     // const users: User[] = [
     //     { username: 'jfcamacho', email: 'jfcamacho@email.com' },
@@ -102,14 +130,14 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
     //     { username: 'hernesto', email: 'hernesto@email.com' },
     // ];
 
-    const tasks: Task[] = [
-        { title: 'Create Topbar', description: 'Create the diferents parts in the topbar', user: {username: 'jfcamacho'} },
-        { title: 'Create Sidebar', description: 'Create the menu in the side', user: {username: 'acbenitez'} },
-        { title: 'Create footer', description: 'Create an image for the footer', user: {username: 'hernesto'} },
-        { title: 'Create Topbar', description: 'Create the diferents parts in the topbar', user: {username: 'jfcamacho'} },
-        { title: 'Create Sidebar', description: 'Create the menu in the side', user: {username: 'acbenitez'} },
-        { title: 'Create footer', description: 'Create an image for the footer', user: {username: 'hernesto'} },
-    ];
+    // const tasks: Task[] = [
+    //     { title: 'Create Topbar', description: 'Create the diferents parts in the topbar', user: {username: 'jfcamacho'} },
+    //     { title: 'Create Sidebar', description: 'Create the menu in the side', user: {username: 'acbenitez'} },
+    //     { title: 'Create footer', description: 'Create an image for the footer', user: {username: 'hernesto'} },
+    //     { title: 'Create Topbar', description: 'Create the diferents parts in the topbar', user: {username: 'jfcamacho'} },
+    //     { title: 'Create Sidebar', description: 'Create the menu in the side', user: {username: 'acbenitez'} },
+    //     { title: 'Create footer', description: 'Create an image for the footer', user: {username: 'hernesto'} },
+    // ];
 
     const selectedCountryTemplate = (option: User, props: any) => {
         if (option) {
@@ -142,7 +170,7 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions }) 
                         <DataTable value={tasks} scrollable scrollHeight="200px">
                             <Column field="title" header="Title"></Column>
                             <Column field="description" header="Description"></Column>
-                            <Column field="user.username" header="User"></Column>
+                            <Column field="user.name" header="User"></Column>
                         </DataTable>
                     </div>
                 </div>

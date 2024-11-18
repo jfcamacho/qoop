@@ -2,7 +2,7 @@ export interface Project{
     id?: number;
     title: string;
     description: string;
-    tasks?: number;
+    tasks?: any;
     status?: number;    
     owner_id?: number;
 }

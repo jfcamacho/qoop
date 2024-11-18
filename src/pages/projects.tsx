@@ -16,6 +16,7 @@ import axios from 'axios';
 import Config from '../config/config';
 import { Button } from 'primereact/button';
 import { useGlobalContext } from '../config/GlobalContext';
+import { Task } from '../models/Task.model';
 
 
 export default function Projects() {
@@ -124,9 +125,10 @@ export default function Projects() {
     };
 
     const tasksBodyTemplate = (rowData: Project) => {
+        const tasksData = rowData.tasks?.length
         return (
             <div className="flex align-items-center justify-content-center" style={{height: '20px'}}>
-                <span className="text-black mr-5">{rowData.tasks}</span>
+                <span className="text-black mr-5">{tasksData}</span>
                 <a style={{cursor: "pointer"}} onClick={() => newTaskHandler(rowData)}>
                     <i className="pi pi-file-plus" style={{color: "#708090"}}></i>
                 </a>
@@ -135,7 +137,14 @@ export default function Projects() {
     }
 
     const statusBodyTemplate = (rowData: Project) => {
-        return <MeterGroup values={[{ label: 'Tasks completed', value: rowData.status, color: '#34d399'}]} />;
+        const tasksCompleted = rowData.tasks.filter((ts: Task) => {
+            if(ts.completed != false){
+                return true
+            }else{
+                return false
+            }
+        })
+        return <MeterGroup values={[{ label: 'Tasks completed', value: tasksCompleted.length*100/rowData.tasks.length, color: '#34d399'}]} />;
     };
 
     const header = renderHeader();
@@ -201,7 +210,7 @@ export default function Projects() {
                     </DataTable>
                 </div>
             </div>
-            <CreateTaskDialog registerFunctions={setChildFunctions}/>
+            <CreateTaskDialog registerFunctions={setChildFunctions} updateProjects={loadProjects}/>
         </div>
     );
 }
