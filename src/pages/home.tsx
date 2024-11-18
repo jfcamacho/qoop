@@ -8,7 +8,7 @@ import { useGlobalContext } from '../config/GlobalContext';
 
 const Home = () => { 
     const navigate = useNavigate();
-    const { user, setGlobalState } = useGlobalContext();
+    const { user, isSubscribed, setGlobalState } = useGlobalContext();
     const items: MenuItem[] = [
         {
             label: 'Users',
@@ -41,7 +41,9 @@ const Home = () => {
     ];
     const startContent = (
         <React.Fragment>
-      <img alt="Card" className='border-round-xl w-10rem' src="/images/qoop-logo-DiXdMchp.png" />
+            <a onClick={() => navigate('/Home')}>
+                <img alt="Card" className='border-round-xl w-10rem' src="/images/qoop-logo-DiXdMchp.png" />
+            </a>
         </React.Fragment>
     );
 
@@ -54,7 +56,7 @@ const Home = () => {
             <div className="flex align-items-center gap-2">
                 {/* <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" /> */}
                 <span className="text-white" style={{fontSize: '1.3rem'}}>{user.name}</span>
-                {user.subscribed ? <Badge value="Active" severity="success"></Badge> : <Badge value="Expired" severity="danger"></Badge>}
+                {isSubscribed ? <Badge value="Active" severity="success"></Badge> : <Badge value="Expired" severity="danger"></Badge>}
             <button onClick={handlerLogOut} className="p-link inline-flex justify-content-center align-items-center text-black h-3rem w-3rem border-circle hover:bg-white-alpha-10 transition-all transition-duration-200">
                 <i className="pi pi-power-off" style={{ fontSize: '1.2rem', color: 'white'}}></i>
             </button>

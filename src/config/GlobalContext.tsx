@@ -3,11 +3,12 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 // Define la estructura del estado global como un objeto con múltiples datos
 interface GlobalState {
   user: {
-    id: number;
-    name: string;
-    username: string;
-    subscribed: boolean;
-  };
+    id?: number;
+    name?: string;
+    username?: string;
+    subscribed?: boolean;
+  },
+  isSubscribed: boolean;
   setGlobalState: (key: keyof GlobalState, value: any) => void;
 }
 
@@ -23,6 +24,7 @@ interface GlobalProviderProps {
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const [state, setState] = useState<GlobalState>({
     user: { id:0, name: "", username: "", subscribed: false},
+    isSubscribed: false,
     setGlobalState: (key, value) => {
       setState((prev) => ({
         ...prev,

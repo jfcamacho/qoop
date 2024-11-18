@@ -14,9 +14,11 @@ const Register = () => {
     const toast = useRef<Toast>(null);
     
     const [formData, setFormData] = useState<User>({
+        name: "",
         username: "",
         password: "",
         email: "",
+        repeatPassword: ""
       });
     
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

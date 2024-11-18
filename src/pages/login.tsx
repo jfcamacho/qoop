@@ -44,36 +44,32 @@ const Login = () => {
                 axios.post(`${Config.API_URL}/token`, params.toString(), {
                     withCredentials: true,  // Esto también asegura que las cookies se envíen
                   })
-                  .then((response: any) => {
+                  .then(async (response: any) => {
                     setGlobalState("user", {...response.data.user})
-                    navigate('/Home')
+                    await axios.get(`${Config.API_URL}/subscriptions/${response.data.user.id}`, {
+                        withCredentials: true
+                    }).then( (response: any) => {
+                        if((new Date(response.data.end_date)).getTime() >= (new Date()).getTime()){
+                            setGlobalState("isSubscribed", true)
+                        }else{
+                            toast.current?.show({severity:'error', summary: 'Error', detail:'The process faild', life: 3000});
+                        }
+                    }).catch(() => {
+                    })
+                    .finally( () => {
+                        navigate('/Home')
+                    })
                   })
                   .catch(error => console.error('Error:', error));
-                // const response = await fetch("http://localhost:8000/token", {
-                //   method: "POST",
-                //   headers: {
-                //     "Content-Type": "application/x-www-form-urlencoded",
-                //   },
-                //   body: params.toString(),
-                //   credentials: "include", // Importante para enviar cookies
-                // });
-                // console.log(response)
-                // if (response.ok) {
-                //     setGlobalState("user", {name: "Jefferson", username: "jfcamacho", subscribed: false})
-                //     navigate('/Home')
-                // } else {
-                //   console.log("Invalid credentials");
-                // }
             } catch (error) {
-            console.error("Error logging in:", error);
-            console.log("Error during register");
+                console.error("Error logging in:", error);
+                confirm2()
             }
             setFormData({
                 ...formData,
                 ['username']: '',
                 ['password']: ''
             })
-            confirm2()
         // Aquí puedes hacer un fetch o axios para enviar los datos al backend
       };
 

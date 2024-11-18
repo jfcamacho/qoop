@@ -13,6 +13,7 @@ import axios from 'axios';
 import Config from '../config/config';
 import { Task } from '../models/Task.model';
 import { confirmDialog, ConfirmDialog } from 'primereact/confirmdialog';
+import { useGlobalContext } from '../config/GlobalContext';
 
 
 export default function Tasks() {
@@ -20,6 +21,7 @@ export default function Tasks() {
     const [loading, setLoading] = useState<boolean>(true);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
     const [tasks, setTask] = useState<Task[]>([]);
+    const {isSubscribed } = useGlobalContext();
     
     const [filters, setFilters] = useState<DataTableFilterMeta>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -117,7 +119,7 @@ export default function Tasks() {
             <>
                 {rowData.completed == 0 ?<Button icon="pi pi-circle" type='button' onClick={() => confirm(rowData, true)} text severity="warning" /> :
                 <Button icon="pi pi-circle-fill" type='button' text severity="success" />}
-                <Button icon="pi pi-trash" type='button' onClick={() => confirm(rowData, false)} text severity="danger" />
+                <Button icon="pi pi-trash" type='button' onClick={() => confirm(rowData, false)} text severity="danger" disabled={!isSubscribed}/>
             </>
         )
     }

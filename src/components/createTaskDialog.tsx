@@ -11,6 +11,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import axios from "axios";
 import Config from "../config/config";
+import { useGlobalContext } from "../config/GlobalContext";
 // Define los tipos de las funciones
 export type ChildFunctions = {
     setVisible: (value: boolean) => void;
@@ -30,6 +31,7 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
     const [users, setUser] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [tasks, setTasks] = useState<Task[]>([]);
+    const { user, isSubscribed, setGlobalState } = useGlobalContext();
     const [selectedUser, setSelectedUser] = useState<User>({
         id: 0,
         username: "",
@@ -66,6 +68,7 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
     })
 
     const [task, setTask] = useState<Task>({
+        id: 0,
         title: '',
         description: '',
         user_id: 0,
@@ -79,24 +82,41 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
       }, [registerFunctions, newProjet]);
 
     const saveTaskHandler = async () => {
-        if (selectedUser){
-            task.completed = 0
-            task.user_id = selectedUser.id
-        await axios.post(`${Config.API_URL}/tasks/${newProjet.id}`, task, {
-            withCredentials: true,  // Esto también asegura que las cookies se envíen
-        }).then( () => {
-            toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
-            loadTasks()
-            updateProjects()
-        }).catch( (error) => {
-            console.error('Error al actualizar el usuario:', error);
-        })
+        setLoading(true)
+        if(task.id == 0){
+            if (selectedUser){
+                task.completed = 0
+                task.user_id = selectedUser.id
+                await axios.post(`${Config.API_URL}/tasks/${newProjet.id}`, task, {
+                    withCredentials: true,  // Esto también asegura que las cookies se envíen
+                }).then( () => {
+                    toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
+                    loadTasks()
+                    updateProjects()
+                    setLoading(false)
+                }).catch( (error) => {
+                    console.error('Error al actualizar el usuario:', error);
+                })
+            }
+        }else{
+            if (selectedUser){
+                task.user_id = selectedUser.id
+                await axios.put(`${Config.API_URL}/tasks/${task.id}`, task, {
+                    withCredentials: true,  // Esto también asegura que las cookies se envíen
+                }).then( () => {
+                    toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
+                    loadTasks()
+                    updateProjects()
+                }).catch( (error) => {
+                    console.error('Error al actualizar el usuario:', error);
+                })
+            }
         }
     }
 
     const footerContent = (
         <div>
-            <Button label="Save" icon="pi pi-check" severity="success" onClick={() => saveTaskHandler()} autoFocus />
+            <Button label="Save" icon="pi pi-check" severity="success" disabled={!isSubscribed} onClick={() => saveTaskHandler()} autoFocus />
             <Button label="Cancel" icon="pi pi-check" severity="danger" onClick={() => setVisible(false)} autoFocus />
         </div>
     );
@@ -140,7 +160,7 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
         if (option) {
             return (
                 <div className="flex align-items-center">
-                    <div>{option.username}</div>
+                    <div>{option.name}</div>
                 </div>
             );
         }
@@ -148,8 +168,34 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
         return <span>{props.placeholder}</span>;
     };
 
+    const statusTask = (taskRow: Task) => {
+        return (
+            <>
+                {taskRow.completed != 0 ? <i className="pi pi-check" style={{ color: 'slateblue' }}></i> :
+                <i className="pi pi-times" style={{ color: 'red' }}></i>}
+            </>
+        )
+    }
+
+    const handleRow = (taskRow: Task) => {
+        return (
+            <Button icon="pi pi-pencil" type='button' onClick={() => prepareChange(taskRow)} text severity="warning" disabled={!isSubscribed}/>
+        )
+    }
+
+    const prepareChange = (taskRow: Task) => {
+        setTask({...taskRow})
+        for(let sUser of users){
+            if(sUser.id == taskRow.user_id){
+                setSelectedUser(sUser)
+                break
+            }
+        }
+    }
+
     return (<>
         <Toast ref={toast} />
+        <div className="loa"></div>
         <Dialog visible={visible} modal header={newProjet.title} footer={footerContent} style={{ width: '50rem' }} onHide={() => {if (!visible) return; setVisible(false); }}>
             <div className="grid">
                 <div className="col-4">
@@ -164,10 +210,12 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
                 </div>
                 <div className="col-12">
                     <div className="card">
-                        <DataTable value={tasks} scrollable scrollHeight="200px">
+                        <DataTable value={tasks} scrollable scrollHeight="200px" loading={loading}>
+                            <Column body={handleRow}></Column>
                             <Column field="title" header="Title"></Column>
                             <Column field="description" header="Description"></Column>
                             <Column field="user.name" header="User"></Column>
+                            <Column field="completed" alignHeader={'center'} style={{textAlign: 'center'}} header="Status" body={statusTask }></Column>
                         </DataTable>
                     </div>
                 </div>

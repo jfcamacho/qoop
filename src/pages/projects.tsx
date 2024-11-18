@@ -20,8 +20,9 @@ import { Task } from '../models/Task.model';
 
 export default function Projects() {
     const toast = useRef<Toast>(null);
-    const { user, setGlobalState } = useGlobalContext();
+    const { user, isSubscribed, setGlobalState } = useGlobalContext();
     const projectData = {
+        id: 0,
         title: "",
         description: ""
     }
@@ -40,14 +41,25 @@ export default function Projects() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Evita la recarga de la página
-        await axios.post(`${Config.API_URL}/projects/${user.id}`, formData, {
-            withCredentials: true,  // Esto también asegura que las cookies se envíen
-        }).then( () => {
-            toast.current?.show({severity:'success', summary: 'Success', detail:'The project has been created', life: 3000});
-            loadProjects()
-        }).catch( (error) => {
-            console.error('Error al actualizar el usuario:', error);
-        })
+        if(formData.id == 0){
+            await axios.post(`${Config.API_URL}/projects/${user.id}`, formData, {
+                withCredentials: true,  // Esto también asegura que las cookies se envíen
+            }).then( () => {
+                toast.current?.show({severity:'success', summary: 'Success', detail:'The project has been created', life: 3000});
+                loadProjects()
+            }).catch( (error) => {
+                console.error('Error al actualizar el usuario:', error);
+            })
+        }else{
+            await axios.put(`${Config.API_URL}/projects/${formData.id}`, formData, {
+                withCredentials: true,  // Esto también asegura que las cookies se envíen
+            }).then( () => {
+                toast.current?.show({severity:'success', summary: 'Success', detail:'The project has been created', life: 3000});
+                loadProjects()
+            }).catch( (error) => {
+                console.error('Error al actualizar el usuario:', error);
+            })
+        }
       };
 
     const confirm2 = () => {
@@ -136,7 +148,7 @@ export default function Projects() {
 
     const statusBodyTemplate = (rowData: Project) => {
         const tasksCompleted = rowData.tasks.filter((ts: Task) => {
-            if(ts.completed != false){
+            if(ts.completed != 0){
                 return true
             }else{
                 return false
@@ -158,10 +170,16 @@ export default function Projects() {
         return(
             <>
             <div className='flex justify-content-end'>
-                <Button label="Continue" icon="pi pi-check" type='submit'/>
+                <Button label="Continue" icon="pi pi-check" type='submit' disabled={!isSubscribed}/>
                 <Button label="Cancel" severity="danger" icon="pi pi-times" type='button' onClick={() => setFormData({...projectData})} style={{ marginLeft: '0.5em' }} />
             </div>
             </>
+        )
+    }
+
+    const handleRow = (projectRow: Project) => {
+        return (
+            <Button icon="pi pi-pencil" type='button' onClick={() => setFormData({...projectRow})} text severity="warning" disabled={!isSubscribed}/>
         )
     }
 
@@ -195,6 +213,7 @@ export default function Projects() {
                 <div className='col-9 text-center'>
                     <DataTable value={project} paginator rows={10} dataKey="id" filters={filters} loading={loading}
                             globalFilterFields={['title', 'description', 'tasks', 'status']} header={header} emptyMessage="No customers found.">
+                        <Column body={handleRow}></Column>
                         <Column field="title" header="Title" style={{ minWidth: '12rem' }} />
                         <Column field="description" header="Description" style={{ minWidth: '12rem'}}  />
                         <Column header="Tasks" alignHeader={'center'} style={{ minWidth: '12rem'}}  body={tasksBodyTemplate}/>
