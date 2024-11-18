@@ -5,7 +5,6 @@ import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
-import { CustomerService } from '../service/CustomerService';
 import { Card } from 'primereact/card';
 import { MeterGroup } from 'primereact/metergroup';
 import { Toast } from 'primereact/toast';
@@ -43,7 +42,7 @@ export default function Projects() {
         event.preventDefault(); // Evita la recarga de la página
         await axios.post(`${Config.API_URL}/projects/${user.id}`, formData, {
             withCredentials: true,  // Esto también asegura que las cookies se envíen
-        }).then( (response: any) => {
+        }).then( () => {
             toast.current?.show({severity:'success', summary: 'Success', detail:'The project has been created', life: 3000});
             loadProjects()
         }).catch( (error) => {
@@ -83,7 +82,6 @@ export default function Projects() {
             withCredentials: true,  // Esto también asegura que las cookies se envíen
           })
           .then((response: any) => {
-            console.log(response.data)
             setProject(getCustomers(response.data));
             setLoading(false);
           })

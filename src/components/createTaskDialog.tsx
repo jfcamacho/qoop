@@ -11,7 +11,6 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import axios from "axios";
 import Config from "../config/config";
-import Projects from "../pages/projects";
 // Define los tipos de las funciones
 export type ChildFunctions = {
     setVisible: (value: boolean) => void;
@@ -63,29 +62,29 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
     const [newProjet, setNewProject] = useState<Project>({
         title: '',
         description: '',
-        id: 0
+        id: 0,
     })
 
     const [task, setTask] = useState<Task>({
         title: '',
         description: '',
         user_id: 0,
-        completed: false
+        completed: 0
     })
 
     useEffect(() => {
         loadUsers()
         loadTasks()
         registerFunctions({ setVisible, setNewProject });
-      }, [registerFunctions]);
+      }, [registerFunctions, newProjet]);
 
     const saveTaskHandler = async () => {
         if (selectedUser){
-            task.completed = false
+            task.completed = 0
             task.user_id = selectedUser.id
         await axios.post(`${Config.API_URL}/tasks/${newProjet.id}`, task, {
             withCredentials: true,  // Esto también asegura que las cookies se envíen
-        }).then( (response: any) => {
+        }).then( () => {
             toast.current?.show({ severity: 'success', summary: 'Confirmed', detail: 'Your task was added', life: 3000 });
             loadTasks()
             updateProjects()
@@ -93,7 +92,6 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
             console.error('Error al actualizar el usuario:', error);
         })
         }
-        console.log(task);
     }
 
     const footerContent = (
@@ -112,11 +110,10 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
         };
     
     const loadTasks = async () => {
-        axios.get(`${Config.API_URL}/tasks`, {
+        axios.get(`${Config.API_URL}/tasks/project/${newProjet.id}`, {
             withCredentials: true,  // Esto también asegura que las cookies se envíen
             })
             .then((response: any) => {
-            console.log(response.data)
             setTasks(getTasks(response.data));
             setLoading(false);
             })
