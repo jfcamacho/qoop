@@ -9,7 +9,7 @@ import { Subscription } from '../models/Subscription.model';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 
-const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> = ({aFocus, options, sOptions}) => {
+const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> = ({options, sOptions}) => {
     const toast = useRef<Toast>(null);
     const { user, setGlobalState } = useGlobalContext();
     const [subscription, setSubscription] = useState<Subscription>({
