@@ -8,7 +8,7 @@ import { useGlobalContext } from '../config/GlobalContext';
 
 const Home = () => { 
     const navigate = useNavigate();
-    const { user, isSubscribed, setGlobalState } = useGlobalContext();
+    const { user, isSubscribed} = useGlobalContext();
     const items: MenuItem[] = [
         {
             label: 'Users',

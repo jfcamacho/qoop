@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
 import { User } from '../models/User.model';
+import Config from '../config/config';
 
 
 const Register = () => {
@@ -36,7 +37,7 @@ const Register = () => {
         }else{
             try {
                 formData.subscribed = false
-                const response = await fetch("http://127.0.0.1:8000/users", {
+                const response = await fetch(`${Config.API_URL}/users`, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",

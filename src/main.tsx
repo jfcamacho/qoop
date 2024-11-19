@@ -11,11 +11,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { GlobalProvider } from './config/GlobalContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
-  <GlobalProvider>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </GlobalProvider>
-  // <StrictMode>
-  // </StrictMode>,
+  <StrictMode>
+    <GlobalProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </GlobalProvider>
+  </StrictMode>,
 )

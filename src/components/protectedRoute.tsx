@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const { user, setGlobalState } = useGlobalContext();
+    const { user } = useGlobalContext();
 
     if (!user.id) {
         return <Navigate to="/" replace />;

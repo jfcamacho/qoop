@@ -31,7 +31,7 @@ const CreateTaskDialog: React.FC<ChildComponentProps> = ({ registerFunctions, up
     const [users, setUser] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [tasks, setTasks] = useState<Task[]>([]);
-    const { user, isSubscribed, setGlobalState } = useGlobalContext();
+    const {isSubscribed } = useGlobalContext();
     const [selectedUser, setSelectedUser] = useState<User>({
         id: 0,
         username: "",

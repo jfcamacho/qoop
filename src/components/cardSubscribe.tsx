@@ -4,10 +4,10 @@ import { ListBox } from 'primereact/listbox';
 import axios from 'axios';
 import Config from '../config/config';
 import { useGlobalContext } from '../config/GlobalContext';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Subscription } from '../models/Subscription.model';
 import { Toast } from 'primereact/toast';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 
 const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> = ({aFocus, options, sOptions}) => {
     const toast = useRef<Toast>(null);
@@ -28,7 +28,7 @@ const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> 
     const footer = (
         <div className='flex justify-content-between'>
             {/* <Button label="Renew" severity="warning" visible={sOptions.status} autoFocus={aFocus} onClick={() => updateSubscriptionHandler()} icon="pi pi-check" style={{ marginLeft: '0.5em' }} /> */}
-            <Button label="Subscribe" severity="success" autoFocus={aFocus} onClick={() => subscribeHandler()} icon="pi pi-check" style={{ marginLeft: '0.5em' }} />
+            <Button label="Subscribe" severity="success" onClick={() => subscribeHandler()} icon="pi pi-check" style={{ marginLeft: '0.5em' }} />
         </div>
     );
     const itemTemplate = (option: any) => {
@@ -41,18 +41,12 @@ const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> 
     };
 
     const subscribeHandler = async () => {
-        let today = new Date()
-        today.setDate(today.getDate() + sOptions.days)
-        setSubscription({
-            start_date: new Date(),
-            end_date: today,
-            paid: false,
-            user_id: user.id,
-        })
+        console.log(subscription);
         await axios.post(`${Config.API_URL}/subscriptions/${user.id}`, subscription, {
             withCredentials: true
         })
         .then(async (response: any) => {
+            console.log(response.data);
             if(response.statusText == "OK"){
                 await axios.get(`${Config.API_URL}/subscriptions/${user.id}`, {
                     withCredentials: true
@@ -76,22 +70,33 @@ const CardSubscribe: React.FC<{ aFocus: boolean, options: any, sOptions: any }> 
         });
     }
 
-    const updateSubscriptionHandler = async () => {
+    useEffect( () => {
         let today = new Date()
         today.setDate(today.getDate() + sOptions.days)
-        await axios.put(`${Config.API_URL}/subscriptions/${user.id}`, {...subscription, end_date: today}, {
-            withCredentials: true,  // Esto también asegura que las cookies se envíen
-            })
-            .then( (response: any) => {
-                if((new Date(response.data.end_date)).getTime() >= (new Date()).getTime()){
-                    setGlobalState("user", {...user, subscribed: true})
-                    toast.current?.show({severity:'success', summary: 'Success', detail:'Now you are subscribed', life: 3000});
-                }else{
-                    toast.current?.show({severity:'error', summary: 'Error', detail:'The process faild', life: 3000});
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
+        setSubscription({
+            start_date: new Date(),
+            end_date: today,
+            paid: false,
+            user_id: user.id,
+        })
+    }, [])
+
+    // const updateSubscriptionHandler = async () => {
+    //     let today = new Date()
+    //     today.setDate(today.getDate() + sOptions.days)
+    //     await axios.put(`${Config.API_URL}/subscriptions/${user.id}`, {...subscription, end_date: today}, {
+    //         withCredentials: true,  // Esto también asegura que las cookies se envíen
+    //         })
+    //         .then( (response: any) => {
+    //             if((new Date(response.data.end_date)).getTime() >= (new Date()).getTime()){
+    //                 setGlobalState("user", {...user, subscribed: true})
+    //                 toast.current?.show({severity:'success', summary: 'Success', detail:'Now you are subscribed', life: 3000});
+    //             }else{
+    //                 toast.current?.show({severity:'error', summary: 'Error', detail:'The process faild', life: 3000});
+    //             }
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    // }
 
     return (
         <>

@@ -8,7 +8,7 @@ import { InputIcon } from 'primereact/inputicon';
 import { Card } from 'primereact/card';
 import { MeterGroup } from 'primereact/metergroup';
 import { Toast } from 'primereact/toast';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 import { Project } from '../models/Project.model';
 import CreateTaskDialog, { ChildFunctions } from '../components/createTaskDialog';
 import axios from 'axios';
@@ -20,7 +20,7 @@ import { Task } from '../models/Task.model';
 
 export default function Projects() {
     const toast = useRef<Toast>(null);
-    const { user, isSubscribed, setGlobalState } = useGlobalContext();
+    const { user, isSubscribed } = useGlobalContext();
     const projectData = {
         id: 0,
         title: "",
@@ -62,16 +62,16 @@ export default function Projects() {
         }
       };
 
-    const confirm2 = () => {
-        confirmDialog({
-            message: 'Yoour project will be added...!',
-            header: 'Info',
-            icon: 'pi pi-info-circle',
-            defaultFocus: 'reject',
-            acceptClassName: 'p-button-danger',
-            acceptLabel: 'Ok'
-        });
-    };
+    // const confirm2 = () => {
+    //     confirmDialog({
+    //         message: 'Yoour project will be added...!',
+    //         header: 'Info',
+    //         icon: 'pi pi-info-circle',
+    //         defaultFocus: 'reject',
+    //         acceptClassName: 'p-button-danger',
+    //         acceptLabel: 'Ok'
+    //     });
+    // };
     const headerC = (
         <div className='flex justify-content-center w-full p-3'>
             <img alt="Card" src="/images/Project.png" className='w-18rem'/>

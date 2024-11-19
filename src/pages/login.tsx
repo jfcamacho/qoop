@@ -19,7 +19,7 @@ interface FormData {
 const Login = () => {
     const navigate = useNavigate();
     const toast = useRef<Toast>(null);
-    const { user, setGlobalState } = useGlobalContext();
+    const { isSubscribed, setGlobalState } = useGlobalContext();
     
     const [formData, setFormData] = useState<FormData>({
         username: "",
@@ -46,6 +46,7 @@ const Login = () => {
                   })
                   .then(async (response: any) => {
                     setGlobalState("user", {...response.data.user})
+                    setGlobalState("isSubscribed", false)
                     await axios.get(`${Config.API_URL}/subscriptions/${response.data.user.id}`, {
                         withCredentials: true
                     }).then( (response: any) => {
@@ -55,6 +56,7 @@ const Login = () => {
                             toast.current?.show({severity:'error', summary: 'Error', detail:'The process faild', life: 3000});
                         }
                     }).catch(() => {
+                        setGlobalState("isSubscribed", false)
                     })
                     .finally( () => {
                         navigate('/Home')
@@ -63,6 +65,7 @@ const Login = () => {
                   .catch(error => console.error('Error:', error));
             } catch (error) {
                 console.error("Error logging in:", error);
+                console.log(isSubscribed);
                 confirm2()
             }
             setFormData({

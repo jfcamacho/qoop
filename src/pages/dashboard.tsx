@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Config from "../config/config";
 import { Card } from "primereact/card";
-import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { useGlobalContext } from "../config/GlobalContext";
 
@@ -10,7 +9,7 @@ import { useGlobalContext } from "../config/GlobalContext";
 
 const Dashboard = () => {
 
-    const { user, isSubscribed, setGlobalState } = useGlobalContext();
+    const { isSubscribed} = useGlobalContext();
     const [city, setCity] = useState("Loja");
     const [weather, setWeather] = useState({
         location: {

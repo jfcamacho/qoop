@@ -7,7 +7,7 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 import { User } from '../models/User.model';
 import { Button } from 'primereact/button';
 import axios from 'axios';
@@ -50,16 +50,16 @@ export default function Users() {
           }
       };
 
-    const confirm2 = () => {
-        confirmDialog({
-            message: 'Yoour User will be added...!',
-            header: 'Info',
-            icon: 'pi pi-info-circle',
-            defaultFocus: 'reject',
-            acceptClassName: 'p-button-danger',
-            acceptLabel: 'Ok'
-        });
-    };
+    // const confirm2 = () => {
+    //     confirmDialog({
+    //         message: 'Yoour User will be added...!',
+    //         header: 'Info',
+    //         icon: 'pi pi-info-circle',
+    //         defaultFocus: 'reject',
+    //         acceptClassName: 'p-button-danger',
+    //         acceptLabel: 'Ok'
+    //     });
+    // };
     const headerC = (
         <div className='flex justify-content-center w-full p-3'>
             <img alt="Card" src="/images/Contract.png" className='w-12rem'/>
